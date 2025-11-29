@@ -1,3 +1,9 @@
+"""
+Маршруты для работы с контактами.
+
+Этот модуль содержит все эндпоинты для CRUD операций с контактами,
+включая создание, чтение, обновление, удаление и поиск.
+"""
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from database import get_db
@@ -18,7 +24,16 @@ def read_contacts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Получить все контакты текущего пользователя"""
+    """
+    Получить все контакты текущего пользователя.
+    
+    Args:
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        List[ContactOut]: Список всех контактов пользователя
+    """
     return db.query(Contacts).filter(Contacts.user_id == current_user.id).all()
 
 
@@ -28,7 +43,20 @@ def read_contact(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Получить конкретный контакт"""
+    """
+    Получить конкретный контакт по ID.
+    
+    Args:
+        contact_id (int): Уникальный идентификатор контакта
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        ContactOut: Данные запрошенного контакта
+        
+    Raises:
+        HTTPException: 404 если контакт не найден или не принадлежит пользователю
+    """
     contact = db.query(Contacts).filter(
         Contacts.id == contact_id,
         Contacts.user_id == current_user.id
@@ -39,7 +67,7 @@ def read_contact(
 
 
 @router.post("/", response_model=ContactOut, status_code=201)
-@limiter.limit("10/minute")  # ОГРАНИЧЕНИЕ: 10 запросов в минуту
+@limiter.limit("10/minute")
 def create_contact(
     request: Request,
     contact: ContactCreate,
@@ -47,8 +75,29 @@ def create_contact(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Создать новый контакт
-    RATE LIMIT: 10 запросов в минуту на создание контактов
+    Создать новый контакт.
+    
+    **Rate Limit:** 10 запросов в минуту на создание контактов.
+    
+    **Требования:**
+    - Аутентификация: Bearer токен обязателен
+    - Email контакта должен быть уникальным для данного пользователя
+    - Телефон должен соответствовать формату: +[код][номер]
+    
+    Args:
+        request (Request): HTTP запрос (для rate limiting)
+        contact (ContactCreate): Данные нового контакта (имя, фамилия, email, телефон, дата рождения)
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        ContactOut: Созданный контакт с присвоенным ID
+        
+    Raises:
+        HTTPException: 
+            - 400 если контакт с таким email уже существует у пользователя
+            - 422 если данные не прошли валидацию
+            - 429 если превышен лимит запросов (более 10 в минуту)
     """
     # Проверка на дубликат email в контактах этого пользователя
     existing = db.query(Contacts).filter(
@@ -76,7 +125,25 @@ def update_contact(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Обновить контакт"""
+    """
+    Обновить существующий контакт.
+    
+    Позволяет частичное обновление - можно изменить только некоторые поля.
+    
+    Args:
+        contact_id (int): ID контакта для обновления
+        contact_update (ContactUpdate): Данные для обновления (все поля опциональны)
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        ContactOut: Обновленный контакт
+        
+    Raises:
+        HTTPException: 
+            - 404 если контакт не найден или не принадлежит пользователю
+            - 400 если новый email уже используется другим контактом пользователя
+    """
     contact = db.query(Contacts).filter(
         Contacts.id == contact_id,
         Contacts.user_id == current_user.id
@@ -112,7 +179,20 @@ def delete_contact(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Удалить контакт"""
+    """
+    Удалить контакт.
+    
+    Args:
+        contact_id (int): ID контакта для удаления
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        dict: Сообщение об успешном удалении
+        
+    Raises:
+        HTTPException: 404 если контакт не найден или не принадлежит пользователю
+    """
     contact = db.query(Contacts).filter(
         Contacts.id == contact_id,
         Contacts.user_id == current_user.id
@@ -132,7 +212,23 @@ def search_contacts(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    """Поиск контактов по имени, фамилии или email"""
+    """
+    Поиск контактов по имени, фамилии или email.
+    
+    Выполняет регистронезависимый поиск по подстроке во всех трех полях.
+    
+    Args:
+        query (str): Поисковый запрос (минимум 1 символ)
+        db (Session): Сессия базы данных
+        current_user (User): Текущий авторизованный пользователь
+        
+    Returns:
+        List[ContactOut]: Список контактов, соответствующих запросу
+        
+    Example:
+        GET /contacts/search/?query=John
+        Вернет всех контактов где имя, фамилия или email содержит "John"
+    """
     contacts = db.query(Contacts).filter(
         Contacts.user_id == current_user.id,
         (

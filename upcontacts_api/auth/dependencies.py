@@ -9,6 +9,24 @@ from redis_client import get_cached_user, cache_user
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
+    """
+    Получает текущего пользователя с кэшированием в Redis.
+    
+    Проверяет JWT токен, ищет пользователя в Redis кэше,
+    если не найден - получает из БД и кэширует.
+    
+    Args:
+        token (str): JWT access токен из заголовка Authorization
+        db (Session): Сессия базы данных
+        
+    Returns:
+        User: Текущий авторизованный пользователь
+        
+    Raises:
+        HTTPException: 
+            - 401 если токен невалиден или пользователь не найден
+            - 403 если email не подтвержден
+    """
     """Получает текущего пользователя с кэшированием в Redis"""
     payload = decode_token(token)
     if payload is None:

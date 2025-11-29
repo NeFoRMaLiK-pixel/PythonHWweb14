@@ -19,6 +19,15 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def get_db():
+    """
+    Создает сессию базы данных.
+    
+    Используется как зависимость FastAPI через Depends(get_db).
+    Автоматически закрывает сессию после использования.
+    
+    Yields:
+        Session: SQLAlchemy сессия
+    """
     db = SessionLocal()
     try:
         yield db
