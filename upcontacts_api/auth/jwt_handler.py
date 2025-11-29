@@ -1,3 +1,5 @@
+"""JWT токены: создание и проверка."""
+
 import os
 import logging
 from datetime import datetime, timedelta

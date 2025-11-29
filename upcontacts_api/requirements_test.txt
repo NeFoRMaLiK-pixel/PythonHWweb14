@@ -1,9 +1,9 @@
-pip install pytest==7.4.3
-pip install pytest-asyncio==0.21.1
-pip install pytest-cov==4.1.0
-pip install httpx==0.26.0
-pip install sphinx==7.2.6
-pip install sphinx-rtd-theme==2.0.0
-pip install sphinx-autodoc-typehints==1.25.2
-pip install pytest-mock==3.12.0
-pip install faker==20.1.0
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.26.0
+sphinx==7.2.6
+sphinx-rtd-theme==2.0.0
+sphinx-autodoc-typehints==1.25.2
+pytest-mock==3.12.0
+faker==20.1.0
