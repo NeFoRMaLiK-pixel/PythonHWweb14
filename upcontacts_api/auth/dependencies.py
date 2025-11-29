@@ -27,7 +27,6 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
             - 401 если токен невалиден или пользователь не найден
             - 403 если email не подтвержден
     """
-    """Получает текущего пользователя с кэшированием в Redis"""
     payload = decode_token(token)
     if payload is None:
         raise HTTPException(

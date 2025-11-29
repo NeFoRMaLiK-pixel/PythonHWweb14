@@ -1,6 +1,16 @@
 """
 Конфигурация pytest и фикстуры для тестов.
 """
+import os
+# Переопределяем переменные окружения для тестов ПЕРЕД импортами
+os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+os.environ["SECRET_KEY"] = "test_secret_key_for_tests_minimum_32_characters"
+os.environ["ALGORITHM"] = "HS256"
+os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"] = "15"
+os.environ["REFRESH_TOKEN_EXPIRE_DAYS"] = "7"
+os.environ["REDIS_HOST"] = "localhost"
+os.environ["REDIS_PORT"] = "6379"
+
 import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
@@ -9,7 +19,6 @@ from database import Base, get_db
 from main import app
 from models import User, Contacts
 from auth.jwt_utils import get_password_hash
-import redis
 from unittest.mock import Mock
 
 # Тестовая БД в памяти
@@ -40,12 +49,14 @@ def db_session():
 
 
 @pytest.fixture(scope="function")
-def client(db_session):
+def client(db_session, mock_redis, mock_email):
     """
     Создает тестовый HTTP клиент FastAPI.
     
     Args:
         db_session: Фикстура БД
+        mock_redis: Мок Redis (автоматически применяется)
+        mock_email: Мок Email (автоматически применяется)
         
     Yields:
         TestClient: HTTP клиент для тестов
@@ -77,7 +88,7 @@ def test_user(db_session):
     """
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpassword"),
+        hashed_password=get_password_hash("testpass"),  # Короткий пароль
         is_verified=True
     )
     db_session.add(user)
@@ -100,7 +111,7 @@ def auth_headers(client, test_user):
     """
     response = client.post(
         "/auth/login",
-        data={"username": test_user.email, "password": "testpassword"}
+        data={"username": test_user.email, "password": "testpass"}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}
@@ -133,7 +144,7 @@ def test_contact(db_session, test_user):
     return contact
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_redis(monkeypatch):
     """
     Мокает Redis клиент для тестов.
@@ -145,11 +156,12 @@ def mock_redis(monkeypatch):
     mock.get.return_value = None
     mock.setex.return_value = True
     mock.delete.return_value = True
+    mock.ping.return_value = True
     monkeypatch.setattr("redis_client.redis_client", mock)
     return mock
 
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def mock_email(monkeypatch):
     """
     Мокает отправку email для тестов.
@@ -157,6 +169,7 @@ def mock_email(monkeypatch):
     Args:
         monkeypatch: pytest monkeypatch фикстура
     """
-    mock = Mock()
+    from unittest.mock import AsyncMock
+    mock = AsyncMock()
     monkeypatch.setattr("email_utils.fm.send_message", mock)
     return mock
