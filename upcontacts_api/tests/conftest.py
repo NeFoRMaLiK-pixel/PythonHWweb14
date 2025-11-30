@@ -4,7 +4,7 @@
 import os
 # Переопределяем переменные окружения для тестов ПЕРЕД импортами
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ["SECRET_KEY"] = "test_secret_key_for_tests_minimum_32_characters"
+os.environ["SECRET_KEY"] = "test_secret_key_32_chars_min!!"
 os.environ["ALGORITHM"] = "HS256"
 os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"] = "15"
 os.environ["REFRESH_TOKEN_EXPIRE_DAYS"] = "7"
@@ -19,7 +19,7 @@ from database import Base, get_db
 from main import app
 from models import User, Contacts
 from auth.jwt_utils import get_password_hash
-from unittest.mock import Mock
+from unittest.mock import Mock, AsyncMock
 
 # Тестовая БД в памяти
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"
@@ -88,7 +88,7 @@ def test_user(db_session):
     """
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpass"),  # Короткий пароль
+        hashed_password=get_password_hash("testpass"),
         is_verified=True
     )
     db_session.add(user)
@@ -169,7 +169,6 @@ def mock_email(monkeypatch):
     Args:
         monkeypatch: pytest monkeypatch фикстура
     """
-    from unittest.mock import AsyncMock
     mock = AsyncMock()
     monkeypatch.setattr("email_utils.fm.send_message", mock)
     return mock
