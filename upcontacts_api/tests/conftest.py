@@ -4,7 +4,7 @@
 import os
 # Переопределяем переменные окружения для тестов ПЕРЕД импортами
 os.environ["DATABASE_URL"] = "sqlite:///:memory:"
-os.environ["SECRET_KEY"] = "test_secret_key_32_chars_min!!"
+os.environ["SECRET_KEY"] = "test_key_12345"
 os.environ["ALGORITHM"] = "HS256"
 os.environ["ACCESS_TOKEN_EXPIRE_MINUTES"] = "15"
 os.environ["REFRESH_TOKEN_EXPIRE_DAYS"] = "7"
@@ -88,7 +88,7 @@ def test_user(db_session):
     """
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("testpass"),
+        hashed_password=get_password_hash("test"),  # КОРОТКИЙ ПАРОЛЬ!
         is_verified=True
     )
     db_session.add(user)
@@ -111,7 +111,7 @@ def auth_headers(client, test_user):
     """
     response = client.post(
         "/auth/login",
-        data={"username": test_user.email, "password": "testpass"}
+        data={"username": test_user.email, "password": "test"}  # ТОТ ЖЕ ПАРОЛЬ!
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}

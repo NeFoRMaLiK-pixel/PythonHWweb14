@@ -45,7 +45,7 @@ class TestGetCurrentUser:
         from auth.jwt_utils import get_password_hash
         user = User(
             email="test@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=True
         )
         db_session.add(user)
@@ -110,7 +110,7 @@ class TestGetCurrentUser:
         from auth.jwt_utils import get_password_hash
         user = User(
             email="unverified@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=False
         )
         db_session.add(user)
@@ -136,7 +136,7 @@ class TestContactsDependencies:
         mock_user = User(
             id=1,
             email="test@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=True
         )
         

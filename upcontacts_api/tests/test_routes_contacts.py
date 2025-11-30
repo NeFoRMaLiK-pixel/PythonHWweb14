@@ -166,7 +166,7 @@ class TestAuthRoutes:
         # Arrange
         user_data = {
             "email": "newuser@example.com",
-            "password": "password123"
+            "password": "pass12"
         }
         
         # Act
@@ -183,7 +183,7 @@ class TestAuthRoutes:
         # Arrange
         user_data = {
             "email": test_user.email,
-            "password": "password123"
+            "password": "pass12"
         }
         
         # Act
@@ -197,7 +197,7 @@ class TestAuthRoutes:
         # Act
         response = client.post(
             "/auth/login",
-            data={"username": test_user.email, "password": "testpassword"}
+            data={"username": test_user.email, "password": "test"}  # ✅ КОРОТКИЙ ПАРОЛЬ
         )
         
         # Assert
@@ -212,7 +212,7 @@ class TestAuthRoutes:
         # Act
         response = client.post(
             "/auth/login",
-            data={"username": test_user.email, "password": "wrongpassword"}
+            data={"username": test_user.email, "password": "wrong"}
         )
         
         # Assert
@@ -223,7 +223,7 @@ class TestAuthRoutes:
         # Act
         response = client.post(
             "/auth/login",
-            data={"username": "nonexistent@example.com", "password": "password"}
+            data={"username": "nonexistent@example.com", "password": "pass"}
         )
         
         # Assert

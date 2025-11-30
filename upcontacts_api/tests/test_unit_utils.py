@@ -85,11 +85,11 @@ class TestJWTUtils(unittest.TestCase):
         from auth.jwt_utils import get_password_hash
         
         # Act
-        hashed = get_password_hash("pass123")
+        hashed = get_password_hash("x")
         
         # Assert
         self.assertIsNotNone(hashed)
-        self.assertNotEqual(hashed, "pass123")
+        self.assertNotEqual(hashed, "x")
         self.assertTrue(hashed.startswith("$2b$"))
     
     def test_verify_password_correct(self):
@@ -97,7 +97,7 @@ class TestJWTUtils(unittest.TestCase):
         from auth.jwt_utils import get_password_hash, verify_password
         
         # Arrange
-        password = "pass123"
+        password = "x"
         hashed = get_password_hash(password)
         
         # Act
@@ -111,10 +111,10 @@ class TestJWTUtils(unittest.TestCase):
         from auth.jwt_utils import get_password_hash, verify_password
         
         # Arrange
-        hashed = get_password_hash("pass123")
+        hashed = get_password_hash("x")
         
         # Act
-        result = verify_password("wrong", hashed)
+        result = verify_password("y", hashed)
         
         # Assert
         self.assertFalse(result)

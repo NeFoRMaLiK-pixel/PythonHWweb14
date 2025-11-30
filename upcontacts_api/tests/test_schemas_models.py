@@ -202,7 +202,7 @@ class TestDatabaseModels:
         
         user = User(
             email="newuser@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=False
         )
         

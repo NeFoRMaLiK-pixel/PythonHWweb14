@@ -126,7 +126,7 @@ class TestEmailVerification:
         token = "valid_token_123"
         user = User(
             email="verify@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=False,
             verification_token=token
         )
@@ -160,7 +160,7 @@ class TestEmailVerification:
         token = "token_123"
         user = User(
             email="verified@example.com",
-            hashed_password=get_password_hash("pass"),
+            hashed_password=get_password_hash("x"),
             is_verified=True,
             verification_token=token
         )
@@ -183,7 +183,7 @@ class TestLogin:
         # Act
         response = client.post(
             "/auth/login",
-            data={"username": test_user.email, "password": "testpass"}
+            data={"username": test_user.email, "password": "test"}
         )
         
         # Assert
@@ -221,7 +221,7 @@ class TestLogin:
         # Arrange
         user = User(
             email="unverified@example.com",
-            hashed_password=get_password_hash("pass12"),
+            hashed_password=get_password_hash("pass6"),
             is_verified=False
         )
         db_session.add(user)
@@ -230,7 +230,7 @@ class TestLogin:
         # Act
         response = client.post(
             "/auth/login",
-            data={"username": "unverified@example.com", "password": "pass12"}
+            data={"username": "unverified@example.com", "password": "pass6"}
         )
         
         # Assert
@@ -277,7 +277,7 @@ class TestPasswordReset:
         
         reset_data = {
             "token": reset_token,
-            "new_password": "newp12"
+            "new_password": "new123"
         }
         
         # Act
@@ -290,14 +290,14 @@ class TestPasswordReset:
         # Verify password changed
         db_session.refresh(test_user)
         from auth.jwt_utils import verify_password
-        assert verify_password("newp12", test_user.hashed_password)
+        assert verify_password("new123", test_user.hashed_password)
     
     def test_reset_password_invalid_token(self, client):
         """Тест сброса пароля с невалидным токеном."""
         # Arrange
         reset_data = {
             "token": "invalid_token",
-            "new_password": "newp12"
+            "new_password": "new123"
         }
         
         # Act
@@ -317,7 +317,7 @@ class TestPasswordReset:
         
         reset_data = {
             "token": reset_token,
-            "new_password": "newp12"
+            "new_password": "new123"
         }
         
         # Act
