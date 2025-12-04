@@ -31,21 +31,30 @@ engine = create_engine(
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+@pytest.fixture(scope="function", autouse=True)
+def setup_database():
+    """
+    Автоматически создаёт таблицы БД перед КАЖДЫМ тестом.
+    autouse=True означает что эта фикстура применяется ко всем тестам.
+    """
+    Base.metadata.create_all(bind=engine)
+    yield
+    Base.metadata.drop_all(bind=engine)
+
+
 @pytest.fixture(scope="function")
 def db_session():
     """
-    Создает тестовую БД для каждого теста.
+    Создает тестовую сессию БД для каждого теста.
     
     Yields:
         Session: SQLAlchemy сессия
     """
-    Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     try:
         yield db
     finally:
         db.close()
-        Base.metadata.drop_all(bind=engine)
 
 
 @pytest.fixture(scope="function")
@@ -88,7 +97,7 @@ def test_user(db_session):
     """
     user = User(
         email="test@example.com",
-        hashed_password=get_password_hash("test"),  # КОРОТКИЙ ПАРОЛЬ!
+        hashed_password=get_password_hash("test"),
         is_verified=True
     )
     db_session.add(user)
@@ -111,7 +120,7 @@ def auth_headers(client, test_user):
     """
     response = client.post(
         "/auth/login",
-        data={"username": test_user.email, "password": "test"}  # ТОТ ЖЕ ПАРОЛЬ!
+        data={"username": test_user.email, "password": "test"}
     )
     token = response.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}

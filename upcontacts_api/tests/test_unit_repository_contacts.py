@@ -177,7 +177,7 @@ class TestUserRepository(unittest.TestCase):
         # Act
         user = User(
             email="newuser@example.com",
-            hashed_password=get_password_hash("password123"),
+            hashed_password=get_password_hash("x"),  # ✅ КОРОТКИЙ ПАРОЛЬ!
             is_verified=False
         )
         self.session.add(user)

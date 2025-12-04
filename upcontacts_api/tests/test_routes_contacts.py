@@ -8,7 +8,7 @@ from datetime import date
 class TestContactsRoutes:
     """Функциональные тесты для CRUD операций с контактами."""
     
-    def test_create_contact_success(self, client, auth_headers):
+    def test_create_contact_success(self, client, db_session, auth_headers):
         """Тест успешного создания контакта."""
         # Arrange
         contact_data = {
@@ -103,7 +103,7 @@ class TestContactsRoutes:
         # Assert
         assert response.status_code == 404
     
-    def test_update_contact(self, client, auth_headers, test_contact):
+    def test_update_contact(self, client, auth_headers, db_session, test_contact):
         """Тест обновления контакта."""
         # Arrange
         update_data = {
@@ -124,7 +124,7 @@ class TestContactsRoutes:
         assert data["phone"] == "+380509999999"
         assert data["extra"] == "Best friend"
     
-    def test_delete_contact(self, client, auth_headers, test_contact):
+    def test_delete_contact(self, client, auth_headers, db_session, test_contact):
         """Тест удаления контакта."""
         # Act
         response = client.delete(f"/contacts/{test_contact.id}", headers=auth_headers)
@@ -161,7 +161,7 @@ class TestContactsRoutes:
 class TestAuthRoutes:
     """Функциональные тесты для аутентификации."""
     
-    def test_register_success(self, client, mock_email):
+    def test_register_success(self, client, db_session, mock_email):
         """Тест успешной регистрации."""
         # Arrange
         user_data = {
@@ -218,7 +218,7 @@ class TestAuthRoutes:
         # Assert
         assert response.status_code == 401
     
-    def test_login_nonexistent_user(self, client):
+    def test_login_nonexistent_user(self, db_session, client):
         """Тест входа несуществующего пользователя."""
         # Act
         response = client.post(
