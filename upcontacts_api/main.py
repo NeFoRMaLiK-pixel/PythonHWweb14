@@ -1,3 +1,8 @@
+import os
+#  Проверяем переменную окружения
+if os.getenv("DATABASE_URL") == "sqlite:///:memory:":
+    print("⚠️ USING TEST DATABASE")
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
