@@ -1,7 +1,7 @@
 import os
-#  Проверяем переменную окружения
+# Проверяем переменную окружения
 if os.getenv("DATABASE_URL") == "sqlite:///:memory:":
-    print("⚠️ USING TEST DATABASE")
+    print("USING TEST DATABASE")
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -25,14 +25,13 @@ app = FastAPI(
     description="API with JWT auth, email verification, Redis caching, rate limiting, and Cloudinary avatars"
 )
 
-# Добавляем state для SlowAPI
+# Добавление state для SlowAPI
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# CORS - разрешаем все источники (настрой под свои нужды)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # В продакшене укажи конкретные домены
+    allow_origins=["*"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -45,11 +44,11 @@ app.include_router(contacts_router, prefix="/contacts", tags=["Contacts"])
 
 @app.on_event("startup")
 async def startup_event():
-    """Проверка подключений при старте"""
+    # Проверка подключений при старте
     if test_redis_connection():
-        print("✅ Redis connected successfully")
+        print("Redis connected successfully")
     else:
-        print("❌ Redis connection failed")
+        print("Redis connection failed")
 
 
 @app.get("/")
@@ -63,7 +62,6 @@ def root():
 
 @app.get("/health")
 def health_check():
-    """Health check endpoint"""
     redis_status = test_redis_connection()
     return {
         "status": "ok",

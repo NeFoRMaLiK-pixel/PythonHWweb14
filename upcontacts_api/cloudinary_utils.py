@@ -14,16 +14,7 @@ cloudinary.config(
 )
 
 def upload_avatar(file_content: bytes, public_id: str) -> str:
-    """
-    Загружает аватар в Cloudinary
-    
-    Args:
-        file_content: байты файла
-        public_id: уникальный идентификатор (например, user_id)
-    
-    Returns:
-        str: URL загруженного изображения
-    """
+
     try:
         result = cloudinary.uploader.upload(
             file_content,
@@ -41,7 +32,7 @@ def upload_avatar(file_content: bytes, public_id: str) -> str:
         raise Exception(f"Ошибка загрузки в Cloudinary: {str(e)}")
 
 def delete_avatar(public_id: str):
-    """Удаляет аватар из Cloudinary"""
+    # Удаляет аватар из Cloudinary
     try:
         cloudinary.uploader.destroy(f"avatars/user_{public_id}")
     except Exception as e:

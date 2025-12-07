@@ -20,7 +20,7 @@ conf = ConnectionConfig(
 fm = FastMail(conf)
 
 async def send_verification_email(email: str, token: str):
-    """Отправка письма с подтверждением email"""
+    # Отправка письма с подтверждением email
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:8000")
     verify_url = f"{frontend_url}/auth/verify-email?token={token}"
     
@@ -48,7 +48,7 @@ async def send_verification_email(email: str, token: str):
     await fm.send_message(message)
 
 async def send_reset_password_email(email: str, token: str):
-    """Отправка письма для сброса пароля"""
+    # Отправка письма для сброса пароля
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:8000")
     reset_url = f"{frontend_url}/auth/reset-password?token={token}"
     

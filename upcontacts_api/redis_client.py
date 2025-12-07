@@ -15,23 +15,23 @@ redis_client = redis.Redis(
 )
 
 def cache_user(user_email: str, user_data: dict, expire: int = 3600):
-    """Кэширует данные пользователя на указанное время (по умолчанию 1 час)"""
+    # Кэширует данные пользователя на указанное время (по умолчанию 1 час)
     key = f"user:{user_email}"
     redis_client.setex(key, expire, json.dumps(user_data))
 
 def get_cached_user(user_email: str) -> Optional[dict]:
-    """Получает закэшированные данные пользователя"""
+    # Получает закэшированные данные пользователя
     key = f"user:{user_email}"
     data = redis_client.get(key)
     return json.loads(data) if data else None
 
 def delete_cached_user(user_email: str):
-    """Удаляет кэш пользователя"""
+    # Удаляет кэш пользователя
     key = f"user:{user_email}"
     redis_client.delete(key)
 
 def test_redis_connection():
-    """Проверяет подключение к Redis"""
+    # Проверяет подключение к Redis
     try:
         redis_client.ping()
         return True
